@@ -1,0 +1,26 @@
+@startuml
+title "C4. Контекст"
+
+!include <C4/C4_Container>
+
+Person(user, "Пользователь", "Прослушивает музыку, создает плейлисты, подписывается на артистов, комментирует треки, покупает подписку.")
+Person(artist, "Артист", "Загружает музыку, получает статистику, взаимодействует с комментариями.")
+Person(advertiser, "Рекламодатель", "Создает рекламные кампании, отслеживает статистику.")
+Person(admin, "Администратор", "Управление учетными данными пользователей, контентом, настройками системы, анализ данных сервиса.")
+
+System(musicStreamingSystem, "Система стриминга музыки")
+user ---> musicStreamingSystem
+artist ---> musicStreamingSystem
+advertiser ---> musicStreamingSystem
+admin ---> musicStreamingSystem
+
+System_Ext(paymentSystem, "Платёжная система", "Обработка транзакций и рекуррентных платежей.")
+System_Ext(email, "Почтовый шлюз", "Информирование пользователя.")
+System_Ext(storage, "Объектное хранилище", "Хранение файлов музыки.")
+System_Ext(analytics, "Сервис аналитики", "Сбор и анализ метрик для пользователей.")
+
+musicStreamingSystem --> paymentSystem
+musicStreamingSystem --> email
+musicStreamingSystem --> storage
+musicStreamingSystem --> analytics
+@enduml
