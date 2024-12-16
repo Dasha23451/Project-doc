@@ -1,0 +1,65 @@
+@startuml
+!define C4P https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master
+!$ICONURL = "https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v3.0.0/icons"
+!includeurl C4P/C4_Container.puml
+
+Person(user, "Пользователь", "Прослушивает музыку, создает плейлисты, подписывается на артистов, комментирует треки, покупает подписку.")
+Person(artist, "Артист", "Загружает музыку, получает статистику, взаимодействует с комментариями.")
+Person(advertiser, "Рекламодатель", "Создает рекламные кампании, отслеживает статистику.")
+Person(admin, "Администратор", "Управление учетными данными пользователей, контентом, настройками системы, анализ данных сервиса.")
+
+System_Boundary(music_platform, "Платформа стриминга музыки") {
+  Container(mobile_app, "Мобильное приложение", "Kotlin", "Мобильное приложение для Android и iOS.", $sprite="kotlin")
+  Container(web_app, "Веб-приложение", "Kotlin, Spring Boot", "Веб-приложение для пользователей, артистов, рекламодателей и администраторов.", $sprite="kotlin")
+  Container(api_gateway, "API Gateway", "Kafka", "", $sprite="Kafka")
+  Container(track_service, "Сервис треков", "Kotlin, Spring Boot", "", $sprite="kotlin")
+  Container(advertising_service, "Сервис рекламы", "Kotlin, Spring Boot", "", $sprite="kotlin")
+  Container(payment_service, "Сервис платежей", "Kotlin, Spring Boot", "", $sprite="kotlin")
+  Container(notification_service, "Сервис уведомлений", "Kotlin, Spring Boot", "", $sprite="kotlin")
+  Container(support_service, "Сер﻿вис техподдержки", "Kotlin, Spring Boot", "", $sprite="kotlin")
+  Container(analytics_service, "Сер﻿вис аналитики", "Kotlin, Spring Boot", "", $sprite="kotlin")
+  Container(authorization_gateway, "Шлюз авторизации и аутентификации", "Kotlin, Spring Boot", "", $sprite="kotlin")
+  Container(database1, "База данных треков", "PostgreSQL", "")
+  Container(database2, "База данных рекламы", "PostgreSQL", "")
+  Container(database3, "База данных платежей", "PostgreSQL", "")
+  Container(database4, "База данных уведомлений", "PostgreSQL", "")
+  Container(database5, "База данных техподдержки", "PostgreSQL", "")
+  Container(database6, "База данных анали﻿тики", "PostgreSQL", "")
+  Container(database7, "База данных авторизации и аутентификации", "PostgreSQL", "")
+}
+
+Rel(user, mobile_app, "Использует", "HTTPS")
+Rel(user, web_app, "Использует", "HTTPS")
+Rel(artist, web_app, "Использует", "HTTPS")
+Rel(advertiser, web_app, "Использует", "HTTPS")
+Rel(admin, web_app, "Использует", "HTTPS")
+
+Rel(mobile_app, api_gateway, "Запросы на выполнение операций", "HTTPS")
+Rel(web_app, api_gateway, "Запросы на выполнение операций", "HTTPS")
+
+Rel(api_gateway, track_service, "Данные о треках", "HTTPS")
+Rel(api_gateway, advertising_service, "Данные о рекламе", "HTTPS")
+Rel(api_gateway, payment_service, "Управление оплатой", "HTTPS")
+Rel(api_gateway, notification_service, "Управление уведомлениями", "HTTPS")
+Rel(api_gateway, support_service, "Запросы для техподдержки", "HTTPS")
+Rel(api_gateway, analytics_service, "Запросы для аналитики", "HTTPS")
+Rel(api_gateway, authorization_gateway, "Авторизация и аутентификация", "HTTPS")
+
+Rel(track_service, database1, "Чтение и запись данных о треках", "HTTPS")
+Rel(advertising_service, database2, "Чтение и запись данных о рекламе", "HTTPS")
+Rel(payment_service, database3, "Чтение и запись данных о платежах", "HTTPS")
+Rel(notification_service, database4, "Чтение и запись данных о уведомлениях", "HTTPS")
+Rel(support_service, database5, "Чтение и запись данных для техподдержки", "HTTPS")
+Rel(analytics_service, database6, "Чтение и запись данных для аналитики", "HTTPS")
+Rel(authorization_gateway, database7, "Чтение и запись данных пользователей", "HTTPS")
+
+System_Ext(paymentSystem, "Платёжная система", "Обработка транзакций и рекуррентных платежей.")
+System_Ext(email, "Почтовый шлюз", "Информирование пользователя.")
+System_Ext(storage, "Объектное хранилище", "Хранение файлов")
+System_Ext(analytics, "Сервис аналитики", "Сбор и анализ метрик для разработчиков.")
+
+Rel(payment_service, paymentSystem, "Производит оплату и поставляет информацию об операциях", "HTTPS")
+Rel(notification_service, email, "Уведомляет слушателей рассылкой email", "HTTPS/REST")
+Rel(track_service, storage, "Маршрутизирует запросы", "HTTPS")
+Rel(analytics_service, analytics, "Маршрутизирует запросы", "HTTPS")
+@enduml

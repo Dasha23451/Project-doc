@@ -17,7 +17,7 @@ admin ---> musicStreamingSystem
 System_Ext(paymentSystem, "Платёжная система", "Обработка транзакций и рекуррентных платежей.")
 System_Ext(email, "Почтовый шлюз", "Информирование пользователя.")
 System_Ext(storage, "Объектное хранилище", "Хранение файлов музыки.")
-System_Ext(analytics, "Сервис аналитики", "Сбор и анализ метрик для пользователей.")
+System_Ext(analytics, "Сервис аналитики", "Сбор и анализ метрик для разработчиков.")
 
 musicStreamingSystem --> paymentSystem
 musicStreamingSystem --> email
