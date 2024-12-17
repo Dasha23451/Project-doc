@@ -1,0 +1,33 @@
+@startuml
+title "C4. Компоненты"
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!$ICONURL = "https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v3.0.0/icons"
+!include $ICONURL/common.puml
+!include $ICONURL/devicons/react.puml
+!include $ICONURL/devicons/php.puml
+!include $ICONURL/devicons2/sqlite.puml
+
+
+Container(api_gateway, "API Gateway", "Kotlin", "Маршрутизация запросов к микросервисам")
+ContainerDb(database, "База данных", "PostgreSQL", "Хранение данных о пользователях, треках, плейлистах и рекламе")
+Container(cdn, "CDN", "Content Delivery Network", "Доставка медиа-контента (аудио, изображения)")
+
+System_Boundary(track_service, "Сервис треков") {
+  Component(track_controller, "TrackController", "Kotlin", "Обрабатывает HTTP-запросы, связанные с треками")
+  Component(track_services, "TrackService", "Kotlin", "Бизнес-логика для управления треками")
+  Component(track_repository, "TrackRepository", "Kotlin", "Интерфейс для взаимодействия с базой данных")
+  Component(track_cache, "TrackCache", "Kotlin", "Кэширование часто запрашиваемых данных о треках")
+  Component(media_service, "MediaService", "Kotlin", "Взаимодействие с CDN для доставки медиа-контента")
+}
+
+Rel(api_gateway, track_controller, "Маршрутизирует запросы")
+Rel(track_controller, track_services, "Передает запросы на выполнение операций")
+Rel(track_services, track_repository, "Работает с данными треков")
+Rel(track_services, track_cache, "Читает/записывает данные в кэш")
+Rel(track_services, media_service, "Взаимодействует с CDN")
+Rel(track_repository, database, "Читает/пишет данные")
+Rel(media_service, cdn, "Запрашивает медиа-контент")
+
+
+@enduml
