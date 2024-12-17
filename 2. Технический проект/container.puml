@@ -9,23 +9,26 @@ Person(advertiser, "Рекламодатель", "Создает рекламн�
 Person(admin, "Администратор", "Управление учетными данными пользователей, контентом, настройками системы, анализ данных сервиса.")
 
 System_Boundary(music_platform, "Платформа стриминга музыки") {
-  Container(mobile_app, "Мобильное приложение", "Kotlin", "Мобильное приложение для Android и iOS.", $sprite="kotlin")
-  Container(web_app, "Веб-приложение", "Kotlin, Spring Boot", "Веб-приложение для пользователей, артистов, рекламодателей и администраторов.", $sprite="kotlin")
-  Container(api_gateway, "API Gateway", "Kafka", "", $sprite="Kafka")
-  Container(track_service, "Сервис треков", "Kotlin, Spring Boot", "", $sprite="kotlin")
-  Container(advertising_service, "Сервис рекламы", "Kotlin, Spring Boot", "", $sprite="kotlin")
-  Container(payment_service, "Сервис платежей", "Kotlin, Spring Boot", "", $sprite="kotlin")
-  Container(notification_service, "Сервис уведомлений", "Kotlin, Spring Boot", "", $sprite="kotlin")
-  Container(support_service, "Сер﻿вис техподдержки", "Kotlin, Spring Boot", "", $sprite="kotlin")
-  Container(analytics_service, "Сер﻿вис аналитики", "Kotlin, Spring Boot", "", $sprite="kotlin")
-  Container(authorization_gateway, "Шлюз авторизации и аутентификации", "Kotlin, Spring Boot", "", $sprite="kotlin")
-  Container(database1, "База данных треков", "PostgreSQL", "")
-  Container(database2, "База данных рекламы", "PostgreSQL", "")
-  Container(database3, "База данных платежей", "PostgreSQL", "")
-  Container(database4, "База данных уведомлений", "PostgreSQL", "")
-  Container(database5, "База данных техподдержки", "PostgreSQL", "")
-  Container(database6, "База данных анали﻿тики", "PostgreSQL", "")
-  Container(database7, "База данных авторизации и аутентификации", "PostgreSQL", "")
+  Container(mobile_app, "Мобильное приложение", "Kotlin", "Мобильное приложение для Android и iOS.")
+  Container(web_app, "Веб-приложение", "Kotlin, Spring Boot", "Веб-приложение для пользователей, артистов, рекламодателей и администраторов.")
+  Container(api_gateway, "API Gateway", "Kotlin", "")
+  System_Boundary(services, "Сервисы") {
+    Container(track_service, "Сервис треков", "Kotlin, Spring Boot")
+    Container(advertising_service, "Сервис рекламы", "Kotlin, Spring Boot", "", $sprite="kotlin")
+    Container(payment_service, "Сервис платежей", "Kotlin, Spring Boot", "", $sprite="kotlin")
+    Container(notification_service, "Сервис уведомлений", "Kotlin, Spring Boot", "", $sprite="kotlin")
+    Container(support_service, "Сервис техподдержки", "Kotlin, Spring Boot", "", $sprite="kotlin")
+    Container(analytics_service, "Сервис аналитики", "Kotlin, Spring Boot", "", $sprite="kotlin")
+    Container(authorization_gateway, "Сервис авторизации и аутентификации", "Kotlin, Spring Boot", "", $sprite="kotlin")
+  }
+  ContainerDb(database1, "База данных треков", "PostgreSQL", "")
+  ContainerDb(database2, "База данных рекламы", "PostgreSQL", "")
+  ContainerDb(database3, "База данных платежей", "PostgreSQL", "")
+  ContainerDb(database4, "База данных уведомлений", "PostgreSQL", "")
+  ContainerDb(database5, "База данных техподдержки", "PostgreSQL", "")
+  ContainerDb(database6, "База данных аналитики", "PostgreSQL", "")
+  ContainerDb(database7, "База данных авторизации и аутентификации", "PostgreSQL", "")
+  Container(event_tire, "Брокер сообщений", "Kafka", "")
 }
 
 Rel(user, mobile_app, "Использует", "HTTPS")
@@ -33,6 +36,21 @@ Rel(user, web_app, "Использует", "HTTPS")
 Rel(artist, web_app, "Использует", "HTTPS")
 Rel(advertiser, web_app, "Использует", "HTTPS")
 Rel(admin, web_app, "Использует", "HTTPS")
+
+Rel(track_service, event_tire, "Создает/читает события")
+track_service--[hidden]--> event_tire
+Rel(advertising_service, event_tire,  "Создает/читает события")
+advertising_service--[hidden]--> event_tire
+Rel(payment_service, event_tire, "Создает/читает события")
+payment_service--[hidden]--> event_tire
+Rel(notification_service, event_tire, "Создает/читает события")
+notification_service--[hidden]--> event_tire
+Rel(support_service, event_tire, "Создает/читает события")
+support_service--[hidden]--> event_tire
+Rel(analytics_service, event_tire, "Создает/читает события")
+analytics_service--[hidden]--> event_tire
+Rel(authorization_gateway, event_tire, "Создает/читает события")
+authorization_gateway--[hidden]--> event_tire
 
 Rel(mobile_app, api_gateway, "Запросы на выполнение операций", "HTTPS")
 Rel(web_app, api_gateway, "Запросы на выполнение операций", "HTTPS")
@@ -58,8 +76,12 @@ System_Ext(email, "Почтовый шлюз", "Информирование п�
 System_Ext(storage, "Объектное хранилище", "Хранение файлов")
 System_Ext(analytics, "Сервис аналитики", "Сбор и анализ метрик для разработчиков.")
 
-Rel(payment_service, paymentSystem, "Производит оплату и поставляет информацию об операциях", "HTTPS")
-Rel(notification_service, email, "Уведомляет слушателей рассылкой email", "HTTPS/REST")
-Rel(track_service, storage, "Маршрутизирует запросы", "HTTPS")
-Rel(analytics_service, analytics, "Маршрутизирует запросы", "HTTPS")
+Rel(payment_service, paymentSystem, "Производит оплату и поставляет информацию об операциях", "REST API")
+payment_service----[hidden]---> paymentSystem
+Rel(notification_service, email, "Уведомляет слушателей рассылкой email", "REST API")
+notification_service----[hidden]---> email
+Rel(track_service, storage, "Хранит и поставляет данные треков", "REST API")
+track_service----[hidden]---> storage
+Rel(analytics_service, analytics, "Собирает и анализирует данные", "REST API")
+analytics_service----[hidden]---> analytics
 @enduml
