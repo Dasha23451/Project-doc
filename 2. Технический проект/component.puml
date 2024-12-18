@@ -18,20 +18,20 @@ System_Boundary(track_service, "Сервис треков") {
   Component(track_repository, "TrackRepository", "Kotlin", "Интерфейс для взаимодействия с базой данных")
   Component(media_client, "MediaClient", "Kotlin", "Клиент для взаимодействия с объектным хранилищем")
 
-  Component(search_controller, "SearchController", "Kotlin", "Обрабатывает HTTP-запросы, связанные с поиском")
-  Component(search_services, "SearchService", "Kotlin", "Бизнес-логика для поиска треков и плейлистов")
-
   Component(playlist_controller, "PlaylistController", "Kotlin", "Обрабатывает HTTP-запросы, связанные с плейлистами")
   Component(playlist_services, "PlaylistService", "Kotlin", "Бизнес-логика для управления плейлистами")
   Component(playlist_repository, "PlaylistRepository", "Kotlin", "Интерфейс для взаимодействия с базой данных")
+
+  Component(search_controller, "SearchController", "Kotlin", "Обрабатывает HTTP-запросы, связанные с поиском")
+  Component(search_services, "SearchService", "Kotlin", "Бизнес-логика для поиска треков и плейлистов")
 }
 
 Rel(api_gateway, track_controller, "Маршрутизирует запросы")
 api_gateway-[hidden]-> track_controller
-Rel(api_gateway, search_controller, "Маршрутизирует запросы")
-api_gateway-[hidden]-> search_controller
 Rel(api_gateway, playlist_controller, "Маршрутизирует запросы")
 api_gateway-[hidden]-> playlist_controller
+Rel(api_gateway, search_controller, "Маршрутизирует запросы")
+api_gateway-[hidden]-> search_controller
 
 Rel(track_controller, track_services, "Передает запросы на выполнение операций")
 Rel(track_services, track_repository, "Работает с данными треков")
@@ -41,8 +41,8 @@ Rel(media_client, storage, "Запрашивает медиа-контент")
 
 Rel(search_controller, search_services, "Передает запросы на выполнение операций")
 
-Rel(search_controller, playlist_repository, "Получает данные")
-Rel(search_controller, track_repository, "Получает данные")
+Rel(search_services, playlist_repository, "Получает данные")
+Rel(search_services, track_repository, "Получает данные")
 Rel(playlist_services, track_services, "Получает данные")
 
 Rel(playlist_controller, playlist_services, "Передает запросы на выполнение операций")
