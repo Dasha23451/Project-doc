@@ -1,51 +1,39 @@
 @startuml
 !define C4P https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master
 !includeurl C4P/C4_Container.puml
-
 title C4 Infrastructure Diagram - Сервис стриминга музыки
-
 package "Selectel" as cloud {
     Container(nginx, "API Gateway", "Kotlin", "Распределяет запросы")
-
     package "Kubernetes Cluster" as k8s_cluster {
-        package "Auth Pod" as auth_pod {
-            Container(authorization_gateway, "Сервис авторизации и аутентификации", "Kotlin, Spring Boot", "", $sprite="kotlin")
-        }
-
-        package "Analytics Pod" as parking_pod {
-            Container(analytics_service, "Сервис аналитики", "Kotlin, Spring Boot", "", $sprite="kotlin")
-        }
-
         package "Track Pod" as search_pod {
             Container(track_service, "Сервис треков", "Kotlin, Spring Boot")
         }
-
-        package "Payment Pod" as payment_pod {
-            Container(payment_service, "Сервис платежей", "Kotlin, Spring Boot", "", $sprite="kotlin")
-        }
-
         package "Notification Pod" as notification_pod {
              Container(notification_service, "Сервис уведомлений", "Kotlin, Spring Boot", "", $sprite="kotlin")
         }
-
-        package "Advertising Pod" as support_pod {
-            Container(advertising_service, "Сервис рекламы", "Kotlin, Spring Boot", "", $sprite="kotlin")
+        package "Advertizing Pod" as report_pod {
+             Container(advertising_service, "Сервис рекламы", "Kotlin, Spring Boot", "", $sprite="kotlin")
         }
+        package "Rest Pod" as auth_pod {
+            Container(authorization_gateway, "Сервис авторизации и аутентификации", "Kotlin, Spring Boot", "", $sprite="kotlin")
 
-        package "Support Pod" as report_pod {
+            Container(analytics_service, "Сервис аналитики", "Kotlin, Spring Boot", "", $sprite="kotlin")
+ 
+            Container(payment_service, "Сервис платежей", "Kotlin, Spring Boot", "", $sprite="kotlin")
+
+            Container(advertising_service, "Сервис рекламы", "Kotlin, Spring Boot", "", $sprite="kotlin")
+
             Container(support_service, "Сервис техподдержки", "Kotlin, Spring Boot", "", $sprite="kotlin")
         }
     }
-
     Container(kafka, "Брокер сообщений", "Apache Kafka", "Асинхронная обработка событий между сервисами")
 }
-
 package "Database Server" as database {
     package "Region 1" as region1 {
         ContainerDb(database_r1_master, "PostgreSQL Master", "PostgreSQL", "Основная база данных для региона 1")
         ContainerDb(database_r1_replica, "PostgreSQL Replica", "PostgreSQL", "Реплика базы данных для региона 1")
     }
-
+    
     package "Region n" as regionn {
         ContainerDb(database_rn_master, "PostgreSQL Master", "PostgreSQL", "Основная база данных для региона n")
         ContainerDb(database_rn_replica, "PostgreSQL Replica", "PostgreSQL", "Реплика базы данных для региона n")
@@ -72,7 +60,6 @@ Rel(notification_service, email_service, "Уведомляет слушател�
 
 ' Соединение Nginx с сервисами
 Rel(nginx, k8s_cluster, "Проксирование запросов", "HTTP")
-
 Rel(k8s_cluster, kafka, "Публикация событий о авторизациях", "Kafka Producer API")
 
 k8s_cluster --[hidden]--> database
