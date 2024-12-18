@@ -8,26 +8,45 @@ title "C4. Компоненты"
 !include $ICONURL/devicons/php.puml
 !include $ICONURL/devicons2/sqlite.puml
 
-
 Container(api_gateway, "API Gateway", "Kotlin", "Маршрутизация запросов к микросервисам")
 ContainerDb(database, "База данных", "PostgreSQL", "Хранение данных о пользователях, треках, плейлистах и рекламе")
-Container(cdn, "CDN", "Content Delivery Network", "Доставка медиа-контента (аудио, изображения)")
+System_Ext(storage, "Объектное хранилище", "Хранение файлов")
 
 System_Boundary(track_service, "Сервис треков") {
   Component(track_controller, "TrackController", "Kotlin", "Обрабатывает HTTP-запросы, связанные с треками")
   Component(track_services, "TrackService", "Kotlin", "Бизнес-логика для управления треками")
   Component(track_repository, "TrackRepository", "Kotlin", "Интерфейс для взаимодействия с базой данных")
-  Component(track_cache, "TrackCache", "Kotlin", "Кэширование часто запрашиваемых данных о треках")
-  Component(media_service, "MediaService", "Kotlin", "Взаимодействие с CDN для доставки медиа-контента")
+  Component(media_client, "MediaClient", "Kotlin", "Клиент для взаимодействия с объектным хранилищем")
+
+  Component(search_controller, "SearchController", "Kotlin", "Обрабатывает HTTP-запросы, связанные с поиском")
+  Component(search_services, "SearchService", "Kotlin", "Бизнес-логика для поиска треков и плейлистов")
+
+  Component(playlist_controller, "PlaylistController", "Kotlin", "Обрабатывает HTTP-запросы, связанные с плейлистами")
+  Component(playlist_services, "PlaylistService", "Kotlin", "Бизнес-логика для управления плейлистами")
+  Component(playlist_repository, "PlaylistRepository", "Kotlin", "Интерфейс для взаимодействия с базой данных")
 }
 
 Rel(api_gateway, track_controller, "Маршрутизирует запросы")
+api_gateway-[hidden]-> track_controller
+Rel(api_gateway, search_controller, "Маршрутизирует запросы")
+api_gateway-[hidden]-> search_controller
+Rel(api_gateway, playlist_controller, "Маршрутизирует запросы")
+api_gateway-[hidden]-> playlist_controller
+
 Rel(track_controller, track_services, "Передает запросы на выполнение операций")
 Rel(track_services, track_repository, "Работает с данными треков")
-Rel(track_services, track_cache, "Читает/записывает данные в кэш")
-Rel(track_services, media_service, "Взаимодействует с CDN")
+Rel(track_services, media_client, "Взаимодействует с объектным хранилищем")
 Rel(track_repository, database, "Читает/пишет данные")
-Rel(media_service, cdn, "Запрашивает медиа-контент")
+Rel(media_client, storage, "Запрашивает медиа-контент")
 
+Rel(search_controller, search_services, "Передает запросы на выполнение операций")
+
+Rel(search_controller, playlist_repository, "Получает данные")
+Rel(search_controller, track_repository, "Получает данные")
+Rel(playlist_services, track_services, "Получает данные")
+
+Rel(playlist_controller, playlist_services, "Передает запросы на выполнение операций")
+Rel(playlist_services, playlist_repository, "Работает с данными плейлистов")
+Rel(playlist_repository, database, "Читает/пишет данные")
 
 @enduml
