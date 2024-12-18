@@ -1,0 +1,62 @@
+@startuml
+!theme plain
+
+package "Разработка" as development {
+    actor "Разработчик" as developer
+    actor "DevOps" as devops
+    [GitHub] as vcs
+    [CI/CD Pipeline] as cicd
+    [CI/CD Pipeline для тестового окружения] as cicdtest
+    [Реестр контейнеров Selectel] as containeregistry
+    package "GitHub Actions CI/CD Pipeline" as cicdpipe {
+         [TestStage] as teststage
+         [BuildStage] as buildstage
+    }
+    package "Testing" as testing {
+         [Результаты Unit тестов] as unittestresults
+         [Результаты Интеграционных тестов] as integrationresults
+    }
+    teststage --> unittestresults : "Запуск тестов кода"
+    teststage --> integrationresults : "Запуск тестов интеграции" 
+}
+
+package "Selectel Kubernetes" as k8s {
+  [Docker] as docker
+  [Containers] as containers
+}
+
+package "Обслуживание" as maintenance {
+    actor "Системный администратор" as sys_admin
+actor "DevOps" as dev_ops2
+    package "Selectel" as cloud {
+      [Система мониторинга OpenNMS] as monitoring_service 
+      [Система бэкапов Selectel] as backup_service
+      [Система CDN Selectel] as cdn_service
+    }
+    dev_ops2 --> cdn_service: Настраивают CDN
+    sys_admin --> cdn_service: Настраивают CDN
+}
+
+package "Внешние сервисы" as outer_services {
+    package "Канал уведомлений" as notifications {
+        [Почтовый шлюз] as email_service
+    }
+}
+
+
+sys_admin --> monitoring_service : "Мониторинг состояния системы"
+sys_admin --> backup_service : "Контроль и восстановление образов"
+monitoring_service --> email_service : "Отправка уведомлений об ошибках и предупреждения"
+developer --> vcs : "PUSH Коммитов"
+devops --> vcs : "Изменения в инфраструктуре и CI/CD"
+vcs --> cicd : "Запуск CI/CD"
+vcs --> cicdtest : "Запуск CI/CD"
+cicd --> buildstage : "Обработка в CI/CD pipeline"
+cicdtest --> buildstage : "Обработка в CI/CD pipeline"
+buildstage --> teststage : "Успешно"
+buildstage --> containeregistry : "Сборка образа Docker и PUSH"
+docker --> containeregistry : "Загрузка образа"
+docker --> containers : "Обновление и развёртка\nкотнейнеров и их копий"
+monitoring_service --> containers : "Проверка состояния"
+backup_service --> containers : "Создание бэкапов и воостановление из бэкапов"
+@enduml
